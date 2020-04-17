@@ -26,6 +26,7 @@ We noticed inconsistencies in what Apex believes the End Date to be, based on a 
 - most but not all examples seem to deal with crossing February, particularly if it crosses over a leap year february
 - We are dealing with Date fields, not Date Time.... hopefully GMT is not wreaking havoc in the background somehow?
 - Unfortunately since sometimes Apex ADDMONTHS is short, and sometimes the trigger.new value is short, the only way to be 100% consistent is to SOQL the records and ignore the values coming from trigger.new and ignore the values calculated from Apex ADDMONTHS. Hopefully I am making a mistake that will be obvious to others. Otherwise you have to decide to 100% rely on the stored formula values for dates, or 100% rely on apex for dates and cannot mix the two. 
+- the inconsistencies are the same in BEFORE and AFTER trigger contexts, and these scenarios are limited to not making any changes in the formula's referenced fields in the current transaction. So it should not be an issue of current changes not being calcualted yet. 
 
 ## Specific Date Examples
 
