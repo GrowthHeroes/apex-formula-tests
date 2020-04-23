@@ -7,6 +7,7 @@ This repository contains tests that show some current formula field errors when 
 * Formula.recalculateFormulas() does not consistently recalculate formulas that use ADDMONTHS
 * Formula.recalculateFormulas() throws a GACK (-817537752) Thrown: lib.gack.GackContext: sfdc.formula.InvalidFieldReferenceException: Field System__{MY custom metadata record} does not exist. Check spelling. Reason: {MY custom metadata} System__{MY custom metadata record} does not exist. Check spelling.
 * Apex Trigger.new and Trigger.old records also exhibit the same inconsistent formula calculations when ADDMONTHS is used
+* Comparing 2 formulas in a validation rule also results in bugs when using AddMonths()
 
 ## Business Requirements
 
@@ -84,3 +85,25 @@ Detail:
 - Formula ADDMONTHS end date in Trigger.new: 4/3/2020
 - __Apex ADDMONTHS calculated end date: 4/2/2020__
 - This spans across a leap year February, but is wrong in APEX ADDMONTHS
+
+
+### Validation rule fails comparing 2 Formula fields that use Add Months
+
+Master:
+- Start 1/29/2018
+- Months: 13
+- Days: 0
+- Formula ADDMONTHS end date in database: 2/27/2019
+
+Detail:
+- Start 3/29/2018
+- Months: 10
+- Days: 30
+- Formula ADDMONTHS end date in database: 2/27/2019
+
+VALIDATION RULE on DETAIL:
+- End_Date__c > Master__r.End_Date__c 
+- __THROWS VALIDATION ERROR MESSAGE "Detail End Date cannot be greater than Master End Date__"
+
+
+
