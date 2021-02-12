@@ -2,6 +2,13 @@
 
 This repository contains tests that show some current formula field errors when using Apex to access them as of Spring '20 / API 48
 
+## TLDR;
+
+* Formula ADDMONTHS() is DIFFERENT than Apex addMonths, Luxon/Moment.JS, Excel's EDATE, and prior formula field examples.  Formula ADDMONTHS is the OUTLIER. 
+* ben_sda provides the only formula that works the same, but it is over 4,000 compiled characters, and virtually not referenceable
+  * https://developer.salesforce.com/forums/ForumsMain?id=906F00000008vsfIAA
+* the only solution that you can maintain control over is to use apex addMonths, since it is consistent and can be swapped out later more easily than formulas
+
 ## Issues Tested
 
 * Formula.recalculateFormulas() does not consistently recalculate formulas that use ADDMONTHS
@@ -30,6 +37,20 @@ We noticed inconsistencies in what Apex believes the End Date to be, based on a 
 - the inconsistencies are the same in BEFORE and AFTER trigger contexts, and these scenarios are limited to not making any changes in the formula's referenced fields in the current transaction. So it should not be an issue of current changes not being calcualted yet. 
 
 ## Specific Date Examples
+
+| from    | months | days |  -1 day | apex ADDMONTHS | formula ADDMONTHS | luxon   | old Formula | ben SDR formula | EDATE   |  -----cause-----------                                  |
+|---------|--------|------|---------|----------------|-------------------|---------|-------------|-----------------|---------|---------------------------------------------|
+| 1/1/20  | 1      | 0    | -1      | 1/31/20        | 1/31/20           | 1/31/20 | 1/31/20     | 1/31/20         | 1/31/20 |                                             |
+| 1/31/20 | 1      | 0    | -1      | 2/28/20        | 2/28/20           | 2/28/20 | 2/29/20     | 2/28/20         | 2/28/20 | Starting month is longer than ending month  |
+| 4/30/20 | 1      | 0    | -1      | 5/29/20        | 5/30/20           | 5/29/20 | 5/29/20     | 5/29/20         | 5/29/20 | Starting month is shorter than ending month |
+| 2/29/20 | 1      | 0    | -1      | 3/28/20        | 3/30/20           | 3/28/20 | 3/28/20     | 3/28/20         | 3/28/20 | Starting month is shorter than ending month |
+| 3/1/19  | 12     | 0    | -1      | 2/29/20        | 2/29/20           | 2/29/20 | 2/29/20     | 2/29/20         | 2/29/20 |                                             |
+| 5/1/20  | 1      | 0    | -1      | 5/31/20        | 5/31/20           | 5/31/20 | 5/31/20     | 5/31/20         | 5/31/20 |                                             |
+| 5/31/20 | 1      | 0    | -1      | 6/29/20        | 6/29/20           | 6/29/20 | 6/30/20     | 6/29/20         | 6/29/20 | Starting month is longer than ending month  |
+| 2/28/21 | 1      | 0    | -1      | 3/27/21        | 3/30/21           | 3/27/21 | 3/27/21     | 3/27/21         | 3/27/21 | Starting month is shorter than ending month |
+| 4/30/20 | 3      | 0    | -1      | 7/29/20        | 7/30/20           | 7/29/20 | 7/29/20     | 7/29/20         | 7/29/20 | Starting month is shorter than ending month |
+| 1/31/20 | 12     | 0    | -1      |                | 1/30/21           | 1/30/21 | 1/30/21     | 1/30/21         | 1/30/21 |                                             |
+| 1/31/20 | 13     |      |         |                |                   | 2/27/21 |             | 2/27/21         | 2/27/21 |                                             |
 
 ### Formula in Trigger.new is 1 day Shorter
 - Start 1/30/2018
